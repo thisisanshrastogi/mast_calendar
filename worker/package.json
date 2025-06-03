@@ -1,0 +1,11 @@
+{
+  "type": "module",
+  "dependencies": {
+    "amqplib": "^0.10.8",
+    "dotenv": "^16.5.0",
+    "pg": "^8.16.0",
+    "plaid": "^34.0.0",
+    "react-router-dom": "^7.6.1",
+    "sequelize": "^6.37.7"
+  }
+}

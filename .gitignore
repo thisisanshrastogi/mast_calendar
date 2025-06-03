@@ -1,0 +1,53 @@
+# Node.js dependencies
+**/node_modules/
+frontend/.env
+backend/.env
+worker/.env
+
+backend/config/mast-calendar-81f38-firebase-adminsdk-fbsvc-3d3e1cccb3.json
+# Build output
+**/dist/
+**/build/
+
+# Logs
+**/logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Environment variables
+**/.env
+**/.env.local
+**/.env.*.local
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Coverage and test outputs
+**/coverage/
+*.lcov
+
+# Temp files
+**/tmp/
+**/temp/
+
+# TypeScript
+**/*.tsbuildinfo
+
+# Parcel/Vite specific (in frontend)
+frontend/.cache/
+frontend/.vite/
+
+# Docker artifacts (if any)
+docker-compose.override.yml
+
+# Lockfiles (optional: only if not using them to pin versions)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
