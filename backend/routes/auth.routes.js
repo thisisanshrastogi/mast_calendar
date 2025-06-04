@@ -12,7 +12,7 @@ router.post("/sessionLogin", async (req, res) => {
       return res.status(400).json({ error: "Firebase token is required" });
     }
     const decodedToken = await admin.auth().verifyIdToken(firebaseToken);
-    console.log("Token verified for user:", decodedToken);
+    console.log("Token verified for user in sessionLogin");
     const email = decodedToken.email;
 
     const exists = await userExist(email);
@@ -50,6 +50,7 @@ router.post("/sessionLogin", async (req, res) => {
 
 router.post("/sessionLogout", async (req, res) => {
   try {
+    console.log("Logging out");
     res.clearCookie("session");
     res.status(200).json({ message: "Session cleared successfully" });
   } catch (error) {

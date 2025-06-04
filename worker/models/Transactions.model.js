@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../config/db.js"; // Adjust path as needed
-import Account from "./Accounts.js"; // Adjust path as needed
+import Account from "./Accounts.model.js"; // Adjust path as needed
 
 const Transaction = sequelize.define(
   "Transaction",

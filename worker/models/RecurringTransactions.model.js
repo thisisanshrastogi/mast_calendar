@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../config/db.js"; // Adjust the path as needed
-import Account from "./Accounts.js";
+import Account from "./Accounts.model.js";
 
 const RecurringTransaction = sequelize.define(
   "RecurringTransaction",

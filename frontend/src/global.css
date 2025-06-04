@@ -61,8 +61,8 @@
 
 .honeycomb div {
   -webkit-animation: honeycomb 1.8s infinite backwards;
-  animation: honeycomb 1.8s infinite backwards;
-  background: #00bba7;
+  animation: honeycomb 2s infinite backwards;
+  background: #3b82f6; /* Tailwind blue-500 */
   height: 14px;
   margin-top: 6px;
   position: absolute;
@@ -80,12 +80,12 @@
 
 .honeycomb div:after {
   top: -5px;
-  border-bottom: 6px solid #00bba7;
+  border-bottom: 6px solid #3b82f6; /* Tailwind blue-500 */
 }
 
 .honeycomb div:before {
   bottom: -5px;
-  border-top: 6px solid #00bba7;
+  border-top: 6px solid #3b82f6; /* Tailwind blue-500 */
 }
 
 .honeycomb div:nth-child(1) {
