@@ -10,7 +10,7 @@ const getUserStatus = async (req, res) => {
       where: { email: email },
       attributes: ["status"],
     });
-    console.log(response);
+    console.log("Checking user status ");
     if (response.status === "ready") {
       return res.status(200).json({ status: "ready" });
     } else if (response.status === "failed") {

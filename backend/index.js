@@ -20,15 +20,12 @@ app.use(cookieParser());
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send("Calendar API is running");
+  res.send("Welcome to the API");
 });
+
 app.use("/api", authRouter);
 
-app.post("/api/events", verifySession, (req, res) => {
-  res.status(200).json({ message: "Event received" });
-});
-
-app.use("/api/user",verifySession, userRouter);
+app.use("/api/user", verifySession, userRouter);
 app.use("/api/plaid", verifySession, plaidRouter);
 
 sequelize.sync({ alter: true }).then(() => {

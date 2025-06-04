@@ -2,13 +2,13 @@ import { User } from "../models/index.js"; // Adjust the path and extension as n
 
 // Middleware to extract userId from database using email in request headers
 const getUserId = async (req, res, next) => {
-  const email = req.email || "ironmaninfinitywar123@gmail.com";
+  const email = req.email;
   if (!email) {
     return res.status(401).json({ error: "Email header missing" });
   }
 
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ where: { email: email } });
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
@@ -20,4 +20,3 @@ const getUserId = async (req, res, next) => {
 };
 
 export default getUserId;
-

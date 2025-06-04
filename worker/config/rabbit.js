@@ -6,7 +6,7 @@ import fetchRecurring from "../services/fetchRecurring.js";
 import storeRecurringTransactions from "../jobs/storeRecurring.js";
 import changeStatusToReady from "../jobs/changeStatusToReady.js";
 
-const RABBIT_MQ_URL = "amqp://localhost";
+const RABBIT_MQ_URL = "amqp://rabbitmq:5672";
 const QUEUE = "user-data-fetch";
 
 export default async function connectToQueue() {
@@ -62,6 +62,7 @@ export default async function connectToQueue() {
             channel.ack(message);
           } catch (error) {
             console.error(`Error processing message for user :`, error);
+            channel.nack(message, false, false);
           }
         }
       },
@@ -69,7 +70,5 @@ export default async function connectToQueue() {
     );
   } catch (error) {
     console.error("Error connecting to RabbitMQ:", error);
-
-    channel.nack(msg, false, false);
   }
 }

@@ -11,7 +11,7 @@ const fetchData = async (userId) => {
 (async () => {
   console.log("Worker started, waiting for messages...");
   try {
-    const connection = await amqplib.connect("amqp://localhost");
+    const connection = await amqplib.connect("amqp://rabbitmq:5672");
     const channel = await connection.createChannel();
     await channel.assertQueue(queue, { durable: true });
     channel.prefetch(1);

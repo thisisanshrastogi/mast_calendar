@@ -1,4 +1,4 @@
-import User from "./models/Users.js";
+import { User } from "./models/index.js";
 
 export const getAccessTokenFromDb = async (email) => {
   try {
