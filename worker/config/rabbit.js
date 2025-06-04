@@ -62,6 +62,7 @@ export default async function connectToQueue() {
             channel.ack(message);
           } catch (error) {
             console.error(`Error processing message for user :`, error);
+            channel.nack(message, false, false);
           }
         }
       },
@@ -69,7 +70,5 @@ export default async function connectToQueue() {
     );
   } catch (error) {
     console.error("Error connecting to RabbitMQ:", error);
-
-    channel.nack(msg, false, false);
   }
 }

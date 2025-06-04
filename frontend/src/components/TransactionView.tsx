@@ -128,7 +128,7 @@ export default function TransactionsView({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
           {/* <h3 className="text-lg font-semibold text-gray-900">Transactions</h3> */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0  p-2 rounded-xl">
-            <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-8">
+            <div className="flex justify-between gap-2 sm:gap-6 ">
               <div className="flex items-center space-x-2">
                 <div className="p-2 bg-blue-100 rounded-full">
                   <ReceiptIcon className="h-4 w-4 text-blue-600" />

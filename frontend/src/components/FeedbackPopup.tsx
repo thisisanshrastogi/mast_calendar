@@ -73,7 +73,7 @@ export default function FeedbackPopup() {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-5 right-5  w-1/3 bg-gradient-to-r from-blue-50 to-white shadow-2xl border-t border-blue-100 rounded-3xl p-5 z-50 transform transition-all duration-300 ease-out animate-slide-up">
+    <div className="fixed bottom-0 right-0 md:bottom-5 md:right-5 w-full md:w-1/3 bg-gradient-to-r from-blue-50 to-white shadow-2xl border-t border-blue-100 rounded-3xl p-5 z-50 transform transition-all duration-300 ease-out animate-slide-up">
       <div className="max-w-md mx-auto">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">

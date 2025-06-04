@@ -27,9 +27,9 @@ export default function AccountDashboard({
       <div className="flex flex-col lg:flex-row gap-4">
         {/* Account Header Card */}
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
           {/* Current Balance */}
-          <div className="bg-gradient-to-br from-white to-gray-50 p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+          <div className="bg-gradient-to-br col-span-2 sm:col-span-1 from-white to-gray-50 p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-medium text-gray-500">
                 Current Balance

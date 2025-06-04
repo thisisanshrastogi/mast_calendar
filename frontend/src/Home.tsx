@@ -115,7 +115,7 @@ function Home() {
                     Account:
                   </span>
                   <span className="tracking-widest text-gray-900">
-                    **** **** **** {selectedAccount.mask || "••••"}
+                    **** {selectedAccount.mask || "••••"}
                   </span>
                 </div>
                 {/* <button
