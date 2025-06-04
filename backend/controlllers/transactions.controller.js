@@ -93,3 +93,69 @@ export const getRecurringTransactions = async (req, res) => {
 };
 
 export const getMonthlyStatistics = async (req, res) => {};
+
+export const getRecurringFlow = async (req, res) => {
+  try {
+    console.log("Getting recurring flows");
+    const accountId = req.body.accountId;
+
+    if (!accountId) {
+      return res.status(400).json({ message: "Account ID is required." });
+    }
+
+    const recurringTransactions = await RecurringTransaction.findAll({
+      where: {
+        account_id: accountId,
+      },
+      attributes: ["last_amount", "average_amount", "type"],
+      include: {
+        model: Account,
+        include: {
+          model: User,
+          where: {
+            email: req.email,
+          },
+        },
+      },
+    });
+    if (recurringTransactions.length === 0) {
+      return res.status(404).json({ message: "No recurring flows found." });
+    }
+    const inflowStreams = recurringTransactions.filter(
+      (transaction) => transaction.type === "inflow"
+    );
+    const outflowStreams = recurringTransactions.filter(
+      (transaction) => transaction.type === "outflow"
+    );
+
+    const safeParseAmount = (value) => {
+      if (!value) return 0;
+      try {
+        const parsed = JSON.parse(value);
+        return typeof parsed.amount === "number" ? parsed.amount : 0;
+      } catch {
+        return 0;
+      }
+    };
+
+    const result = {
+      average_inflow: inflowStreams.reduce((acc, curr) => {
+        return acc + safeParseAmount(curr.average_amount);
+      }, 0),
+      last_inflow: inflowStreams.reduce((acc, curr) => {
+        return acc + safeParseAmount(curr.last_amount);
+      }, 0),
+      average_outflow: outflowStreams.reduce((acc, curr) => {
+        return acc + safeParseAmount(curr.average_amount);
+      }, 0),
+      last_outflow: outflowStreams.reduce((acc, curr) => {
+        return acc + safeParseAmount(curr.last_amount);
+      }, 0),
+    };
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error fetching recurring flows:", error);
+    res.status(500).json({ message: error.message });
+  }
+};

@@ -1,17 +1,15 @@
 import CountUp from "react-countup";
 import { useState } from "react";
-import type { Account } from "../lib/mock-data.js";
+import type { AccountDashboardProps } from "../lib/interfaces.js";
 import TransactionsView from "../components/TransactionView.js";
-import axi from "../utils/axios_cofig.js";
 import RecurringView from "./RecurringView.js";
 import { ArrowDown, ArrowUp, WalletIcon } from "lucide-react";
 // import RecurringView from "@/components/recurring-view";
 
-interface AccountDashboardProps {
-  account: Account;
-}
-
-export default function AccountDashboard({ account }: AccountDashboardProps) {
+export default function AccountDashboard({
+  account,
+  recurringFlow,
+}: AccountDashboardProps) {
   const [activeTab, setActiveTab] = useState("transactions");
   const [selectedPeriod, setSelectedPeriod] = useState("1");
   const [viewMode, setViewMode] = useState<"calendar" | "detailed">("calendar");
@@ -23,100 +21,6 @@ export default function AccountDashboard({ account }: AccountDashboardProps) {
     { value: "12", label: "1Y" },
   ];
 
-  // Filter transactions based on selected period
-  //   const filteredTransactions = account.transactions.filter((transaction) => {
-  //     const now = new Date();
-  //     const startDate = new Date();
-  //     const transactionDate = new Date(transaction.date);
-
-  //     switch (selectedPeriod) {
-  //       case "1month":
-  //         startDate.setMonth(now.getMonth() - 1);
-  //         break;
-  //       case "6months":
-  //         startDate.setMonth(now.getMonth() - 6);
-  //         break;
-  //       case "1year":
-  //         startDate.setFullYear(now.getFullYear() - 1);
-  //         break;
-  //     }
-
-  //     return transactionDate >= startDate;
-  //   });
-
-  //   // Calculate monthly stats
-  //   const monthlyIncome = filteredTransactions
-  //     .filter((t) => t.amount > 0)
-  //     .reduce((sum, t) => sum + t.amount, 0);
-
-  //   const monthlyExpenses = filteredTransactions
-  //     .filter((t) => t.amount < 0)
-  //     .reduce((sum, t) => sum + Math.abs(t.amount), 0);
-
-  //   const pendingTransactions = account.transactions.filter((t) => t.isPending);
-  //   const pendingAmount = pendingTransactions.reduce(
-  //     (sum, t) => sum + t.amount,
-  //     0
-  //   );
-
-  {
-    /* Summary Cards */
-  }
-  {
-    /* <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h3 className="text-xs sm:text-sm font-medium text-gray-500 mb-2">
-            Income
-          </h3>
-          <p className="text-lg sm:text-xl font-bold text-green-600">
-            $
-            {monthlyIncome.toLocaleString("en-US", {
-              minimumFractionDigits: 2,
-            })}
-          </p>
-        </div>
-
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h3 className="text-xs sm:text-sm font-medium text-gray-500 mb-2">
-            Expenses
-          </h3>
-          <p className="text-lg sm:text-xl font-bold text-red-600">
-            $
-            {monthlyExpenses.toLocaleString("en-US", {
-              minimumFractionDigits: 2,
-            })}
-          </p>
-        </div>
-
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h3 className="text-xs sm:text-sm font-medium text-gray-500 mb-2">
-            Pending
-          </h3>
-          <p className="text-lg sm:text-xl font-bold text-blue-600">
-            $
-            {Math.abs(pendingAmount).toLocaleString("en-US", {
-              minimumFractionDigits: 2,
-            })}
-            <span className="text-xs ml-1">({pendingTransactions.length})</span>
-          </p>
-        </div>
-
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h3 className="text-xs sm:text-sm font-medium text-gray-500 mb-2">
-            Recurring
-          </h3>
-          <p className="text-lg sm:text-xl font-bold text-purple-600">
-            $
-            {account.recurringTransactions
-              .reduce((sum, bill) => sum + bill.amount, 0)
-              .toLocaleString("en-US", { minimumFractionDigits: 2 })}
-            <span className="text-xs ml-1">
-              ({account.recurringTransactions.length})
-            </span>
-          </p>
-        </div>
-      </div> */
-  }
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Account Header */}
@@ -164,7 +68,7 @@ export default function AccountDashboard({ account }: AccountDashboardProps) {
             <div className="text-2xl font-bold text-emerald-600">
               <CountUp
                 start={0}
-                end={50}
+                end={Math.abs(recurringFlow?.average_inflow ?? 0)}
                 duration={2}
                 separator=","
                 decimals={2}
@@ -180,14 +84,14 @@ export default function AccountDashboard({ account }: AccountDashboardProps) {
               <h3 className="text-sm font-medium text-gray-500">
                 Est. Recurring Outflow
               </h3>
-              <div className="p-2 bg-red-50 rounded-full">
+              <div className="p-2 ml-2 bg-red-50 rounded-full">
                 <ArrowUp className="w-5 h-5 text-rose-500" />
               </div>
             </div>
             <div className="text-2xl font-bold text-rose-600">
               <CountUp
                 start={0}
-                end={20}
+                end={recurringFlow?.average_outflow || 0}
                 duration={2}
                 separator=","
                 decimals={2}
@@ -220,7 +124,7 @@ export default function AccountDashboard({ account }: AccountDashboardProps) {
                     : "text-gray-600 hover:text-gray-900"
                 }`}
               >
-                Recurring Bills
+                Recurring Transactions
               </button>
             </div>
 
@@ -278,11 +182,7 @@ export default function AccountDashboard({ account }: AccountDashboardProps) {
             selectedAccount={account}
           />
         ) : (
-          <RecurringView
-            selectedAccount={account}
-            viewMode={viewMode}
-            recurringTransactions={account.recurringTransactions}
-          />
+          <RecurringView selectedAccount={account} viewMode={viewMode} />
         )}
       </div>
     </div>

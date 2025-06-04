@@ -1,15 +1,11 @@
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import axi from "../utils/axios_cofig";
 import { usePlaidLink } from "react-plaid-link";
 import { useNavigate } from "react-router-dom";
 import { Loader2, Shield, Zap } from "lucide-react";
 import { toast } from "react-toastify";
 
-interface PlaidButtonProps {
-  setUser: (status: "connected" | null) => void;
-}
-
-const PlaidButton: React.FC<PlaidButtonProps> = ({ setUser }) => {
+const PlaidButton = () => {
   const navi = useNavigate();
 
   const [linkToken, setLinkToken] = useState<string | null>(null);
@@ -56,7 +52,6 @@ const PlaidButton: React.FC<PlaidButtonProps> = ({ setUser }) => {
         navi("/login");
         return;
       }
-      setUser("connected");
       setLoading(false);
       navi("/home");
 

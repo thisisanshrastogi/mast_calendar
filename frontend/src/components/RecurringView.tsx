@@ -1,21 +1,30 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { RecurringTransaction } from "../lib/mock-data.ts";
+import type {
+  RecurringTransactionState,
+  RecurringViewProps,
+} from "../lib/interfaces.ts";
 import Calendar from "./CustomCalendar.tsx";
 import axi from "../utils/axios_cofig.ts";
-
-interface RecurringViewProps {
-  recurringTransactions: RecurringTransaction[];
-}
+import { toast } from "react-toastify";
 
 export default function RecurringView({
   selectedAccount,
   viewMode,
 }: RecurringViewProps) {
-  // const [bills, setBills] = useState(RecurringTransaction);
-  const [recurring, setRecurring] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [recurring, setRecurring] = useState<
+    RecurringTransactionState[] | null
+  >(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  const onBillPay = (billId: number) => {
+    toast.info("Payment processing is not implemented yet. ", {
+      position: "top-right",
+      autoClose: 3000,
+    });
+    console.log(billId);
+  };
 
   const fetchRecurringTransactions = async () => {
     try {
@@ -34,7 +43,7 @@ export default function RecurringView({
       setLoading(false);
     } catch (error) {
       console.error("Failed to fetch recurring transactions:", error);
-      setRecurring([]);
+      setRecurring(null);
       setLoading(false);
     }
   };
@@ -42,23 +51,6 @@ export default function RecurringView({
     fetchRecurringTransactions();
   }, []);
 
-  // const handlePayBill = (billId: number) => {
-  //   setBills((prev) =>
-  //     prev.map((bill) =>
-  //       bill.id === billId ? { ...bill, isPaid: true } : bill
-  //     )
-  //   );
-  // };
-
-  // const monthlyStats = {
-  //   totalOutflow: bills.reduce((sum, bill) => sum + bill.amount, 0),
-  //   paidAmount: bills
-  //     .filter((bill) => bill.isPaid)
-  //     .reduce((sum, bill) => sum + bill.amount, 0),
-  //   unpaidAmount: bills
-  //     .filter((bill) => !bill.isPaid)
-  //     .reduce((sum, bill) => sum + bill.amount, 0),
-  // };
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -94,10 +86,9 @@ export default function RecurringView({
       {/* Main Content */}
       <div className="min-h-[500px]">
         {viewMode === "calendar" ? (
-          <Calendar bills={recurring} onPayBill={() => {}} />
-         
+          <Calendar bills={recurring} onPayBill={onBillPay} />
         ) : (
-          <DetailedView bills={recurring} onPayBill={() => {}} />
+          <DetailedView bills={recurring} onPayBill={onBillPay} />
         )}
       </div>
     </div>
@@ -108,17 +99,12 @@ function DetailedView({
   bills,
   onPayBill,
 }: {
-  bills: RecurringTransaction[];
-  onPayBill: (id: number) => void;
-  monthlyStats: {
-    totalOutflow: number;
-    paidAmount: number;
-    unpaidAmount: number;
-  };
+  bills: RecurringTransactionState[] | null;
+  onPayBill: (billId: number) => void;
 }) {
   const [filter, setFilter] = useState<"all" | "paid" | "unpaid">("all");
 
-  const filteredBills = bills.filter((bill) => {
+  const filteredBills = bills?.filter((bill) => {
     if (filter === "paid") return !bill.is_active;
     if (filter === "unpaid") return bill.is_active;
     return true;
@@ -128,35 +114,6 @@ function DetailedView({
     <div className="bg-white rounded-lg shadow">
       <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-          {/* <div className="grid grid-cols-3 gap-4 w-full sm:w-auto">
-            <div className="text-center">
-              <p className="text-xs text-gray-500">Total</p>
-              <p className="text-sm font-semibold text-gray-900">
-                $
-                {monthlyStats.totalOutflow.toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                })}
-              </p>
-            </div>
-            <div className="text-center">
-              <p className="text-xs text-gray-500">Paid</p>
-              <p className="text-sm font-semibold text-green-600">
-                $
-                {monthlyStats.paidAmount.toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                })}
-              </p>
-            </div>
-            <div className="text-center">
-              <p className="text-xs text-gray-500">Unpaid</p>
-              <p className="text-sm font-semibold text-red-600">
-                $
-                {monthlyStats.unpaidAmount.toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                })}
-              </p>
-            </div>
-          </div> */}
           <div className="flex space-x-2">
             <button
               onClick={() => setFilter("all")}
@@ -192,7 +149,7 @@ function DetailedView({
         </div>
       </div>
       <div className="max-h-96 sm:max-h-[500px] overflow-y-auto">
-        {filteredBills.length === 0 ? (
+        {filteredBills?.length === 0 ? (
           <div className="flex items-center justify-center py-12 text-gray-500">
             <div className="text-center">
               <svg
@@ -213,16 +170,21 @@ function DetailedView({
           </div>
         ) : (
           <div className="divide-y divide-gray-200">
-            {filteredBills.map((bill) => {
+            {filteredBills?.map((bill) => {
               // Parse values from new recurring structure
               const amount =
                 typeof bill.last_amount === "string"
-                  ? JSON.parse(bill.last_amount).amount
-                  : bill.last_amount?.amount ?? 0;
+                  ? Math.abs(
+                      (JSON.parse(bill.last_amount) as { amount: number })
+                        .amount
+                    )
+                  : (bill.last_amount as { amount: number } | undefined)
+                      ?.amount ?? 0;
               const category =
                 typeof bill.personal_finance_category === "string"
                   ? JSON.parse(bill.personal_finance_category).detailed
-                  : bill.personal_finance_category?.detailed ?? "";
+                  : (bill.personal_finance_category as { detailed?: string })
+                      ?.detailed ?? "";
               const frequency = bill.frequency?.toLowerCase() ?? "";
               const dueDate = bill.last_date
                 ? new Date(bill.last_date).toLocaleDateString()
@@ -230,6 +192,7 @@ function DetailedView({
               const name = bill.description || "Recurring Payment";
               // Assume isPaid is based on status or add logic as needed
               const isPaid = false;
+              const isInflow = bill.type === "inflow";
 
               return (
                 <div
@@ -241,7 +204,11 @@ function DetailedView({
                       <div className="flex items-center space-x-3">
                         <div
                           className={`w-3 h-3 rounded-full ${
-                            isPaid ? "bg-green-400" : "bg-orange-400"
+                            isInflow
+                              ? "bg-green-400"
+                              : isPaid
+                              ? "bg-green-400"
+                              : "bg-orange-400"
                           }`}
                         />
                         <div>
@@ -267,15 +234,20 @@ function DetailedView({
                           minimumFractionDigits: 2,
                         })}
                       </span>
-                      {!isPaid && (
+                      {!isInflow && !isPaid && (
                         <button
                           onClick={() => onPayBill(bill.id)}
-                          className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                          className="w-full sm:w-auto min-w-[112px] bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
                         >
                           Pay Now
                         </button>
                       )}
-                      {isPaid && (
+                      {isInflow && (
+                        <span className="w-full sm:w-auto min-w-[112px] bg-green-100 text-green-800 px-4 py-2 rounded-md text-sm font-medium text-center flex items-center justify-center">
+                          Inflow
+                        </span>
+                      )}
+                      {!isInflow && isPaid && (
                         <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium text-center">
                           Paid
                         </span>

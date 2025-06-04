@@ -1,12 +1,8 @@
-import { useState } from "react";
 import PlaidButton from "./components/PlaidButton";
 import { Lock, Shield, Zap } from "lucide-react";
 
 function Plaid_Link() {
-  const [user, setUser] = useState<"connected" | null>("connected");
-  const [view, setView] = useState<"transactions" | "recurring" | "calendar">(
-    "transactions"
-  );
+  // const [user, setUser] = useState<"connected" | null>("connected");
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-blue-50">
@@ -51,7 +47,7 @@ function Plaid_Link() {
                   </p>
                 </div>
                 <div className="space-y-6">
-                  <PlaidButton setUser={setUser} />
+                  <PlaidButton />
 
                   <div className="text-center">
                     <p className="text-sm text-gray-500 mb-4">

@@ -1,21 +1,52 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Transaction } from "../lib/mock-data";
+import type { Account, Transaction } from "../lib/interfaces";
 import axi from "../utils/axios_cofig";
-
-interface TransactionsViewProps {
-  transactions: Transaction[];
-}
+import { ReceiptIcon, TrendingDown, TrendingUp } from "lucide-react";
+import CountUp from "react-countup";
 
 export default function TransactionsView({
   selectedPeriod,
   selectedAccount,
-}: TransactionsViewProps) {
+}: {
+  selectedPeriod: string;
+  selectedAccount: Account;
+}) {
   const [filter, setFilter] = useState<"all" | "income" | "expense">("all");
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
-  const fetchTransactions = async (month, accountId) => {
+
+  const getCategoryFromTransaction = (transaction: any) => {
+    try {
+      const cat = JSON.parse(transaction.personal_finance_category || "{}");
+      return cat.primary || "Other";
+    } catch {
+      return "Other";
+    }
+  };
+
+  const [totalIncome, setTotalIncome] = useState(0);
+  const [totalExpense, setTotalExpense] = useState(0);
+
+  const formatCurrency = (amount: number) => {
+    return amount.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
+  const getCategoryColor = (category: string) => {
+    const colors: { [key: string]: string } = {
+      Income: "bg-green-100 text-green-800",
+      "Food and Drink": "bg-orange-100 text-orange-800",
+      Transportation: "bg-blue-100 text-blue-800",
+      Entertainment: "bg-purple-100 text-purple-800",
+      Other: "bg-gray-100 text-gray-800",
+    };
+    return colors[category] || colors["Other"];
+  };
+
+  const fetchTransactions = async (month: string, accountId: string) => {
     setLoading(true);
     try {
       const res = await axi.post(
@@ -45,6 +76,18 @@ export default function TransactionsView({
     fetchTransactions(selectedPeriod, selectedAccount.account_id);
   }, [selectedPeriod, selectedAccount]);
 
+  useEffect(() => {
+    const income = transactions
+      .filter((t) => t.amount < 0)
+      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+
+    const expense = transactions
+      .filter((t) => t.amount > 0)
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    setTotalIncome(income);
+    setTotalExpense(expense);
+  }, [transactions]);
   //   const filteredTransactions = transactions.filter((transaction) => {
   //     if (filter === "income") return transaction.amount > 0;
   //     if (filter === "expense") return transaction.amount < 0;
@@ -81,23 +124,61 @@ export default function TransactionsView({
   return (
     <div className="bg-white rounded-lg shadow">
       <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
+        {/* Heading */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-          <h3 className="text-lg font-semibold text-gray-900">Transactions</h3>
-          <div className="flex space-x-6 items-center">
-            <span className="text-sm text-green-700 font-medium">
-              Income: $
-              {transactions
-                .filter((t) => t.amount < 0)
-                .reduce((sum, t) => sum + Math.abs(t.amount), 0)
-                .toLocaleString("en-US", { minimumFractionDigits: 2 })}
-            </span>
-            <span className="text-sm text-red-700 font-medium">
-              Expense: $
-              {transactions
-                .filter((t) => t.amount > 0)
-                .reduce((sum, t) => sum + t.amount, 0)
-                .toLocaleString("en-US", { minimumFractionDigits: 2 })}
-            </span>
+          {/* <h3 className="text-lg font-semibold text-gray-900">Transactions</h3> */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0  p-2 rounded-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-8">
+              <div className="flex items-center space-x-2">
+                <div className="p-2 bg-blue-100 rounded-full">
+                  <ReceiptIcon className="h-4 w-4 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">Total</p>
+                  <p className="text-lg font-bold text-blue-600">
+                    {transactions.length}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <div className="p-2 bg-green-100 rounded-full">
+                  <TrendingUp className="h-4 w-4 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">Total Income</p>
+                  <p className="text-lg font-bold text-green-600">
+                    <CountUp
+                      start={0}
+                      end={totalIncome}
+                      duration={1}
+                      decimals={2}
+                      separator=","
+                      prefix="$"
+                    />
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <div className="p-2 bg-red-100 rounded-full">
+                  <TrendingDown className="h-4 w-4 text-red-600" />
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">Total Expenses</p>
+                  <p className="text-lg font-bold text-red-600">
+                    <CountUp
+                      start={0}
+                      end={totalExpense}
+                      duration={1}
+                      decimals={2}
+                      separator=","
+                      prefix="$"
+                    />
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
           <div className="flex space-x-2">
             <button
@@ -163,53 +244,56 @@ export default function TransactionsView({
             );
           }
           return (
-            <div className="divide-y divide-gray-200">
+            <div className="divide-y divide-gray-100">
               {filteredTransactions.map((transaction) => (
                 <div
                   key={transaction.transaction_id}
-                  className="px-4 sm:px-6 py-4 hover:bg-gray-50"
+                  className="p-6 hover:bg-gray-50 transition-colors"
                 >
-                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-2 sm:space-y-0">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2">
-                        <h4 className="font-medium text-gray-900 text-sm sm:text-base">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center space-x-3 mb-2">
+                        <h4 className="font-semibold text-gray-900 truncate">
                           {transaction.name || transaction.merchant_name}
                         </h4>
-                        {/* Pending status not available in provided data */}
-                      </div>
-                      <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-1">
-                        <span className="text-xs sm:text-sm text-gray-500">
-                          {(() => {
-                            try {
-                              const cat = JSON.parse(
-                                transaction.personal_finance_category || "{}"
-                              );
-                              return cat.primary || "";
-                            } catch {
-                              return "";
-                            }
-                          })()}
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getCategoryColor(
+                            getCategoryFromTransaction(transaction)
+                          )}`}
+                        >
+                          {getCategoryFromTransaction(transaction)}
                         </span>
-                        <span className="text-xs sm:text-sm text-gray-500">
+                      </div>
+
+                      <div className="flex items-center space-x-4 text-sm text-gray-500">
+                        <span>{transaction.merchant_name || "unknown"}</span>
+                        <span>•</span>
+                        <span>
                           {transaction.datetime
-                            ? new Date(
-                                transaction.datetime
-                              ).toLocaleDateString()
+                            ? new Date(transaction.datetime).toLocaleDateString(
+                                "en-US",
+                                {
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                                }
+                              )
                             : ""}
                         </span>
                       </div>
                     </div>
-                    <div
-                      className={`text-lg sm:text-xl font-semibold ${
-                        transaction.amount <= 0
-                          ? "text-green-600"
-                          : "text-red-600"
-                      } text-right`}
-                    >
-                      {transaction.amount < 0 ? "+" : ""}$
-                      {Math.abs(transaction.amount).toLocaleString("en-US", {
-                        minimumFractionDigits: 2,
-                      })}
+
+                    <div className="text-right ml-4">
+                      <div
+                        className={`text-xl font-bold ${
+                          transaction.amount <= 0
+                            ? "text-green-600"
+                            : "text-red-600"
+                        }`}
+                      >
+                        {transaction.amount < 0 ? "+" : "-"}$
+                        {formatCurrency(Math.abs(transaction.amount))}
+                      </div>
                     </div>
                   </div>
                 </div>

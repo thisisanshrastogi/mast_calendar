@@ -1,6 +1,7 @@
 import express from "express";
 import {
   getAccountsForUser,
+  getRecurringFlow,
   getRecurringTransactions,
   getTransactions,
 } from "../controlllers/transactions.controller.js";
@@ -25,5 +26,7 @@ router.get("/status", getUserStatus);
 router.get("/feedback_status", getFeedbackStatus);
 
 router.post("/feedback", storeFeedback);
+
+router.post("/recurring_flows", getRecurringFlow);
 
 export default router;

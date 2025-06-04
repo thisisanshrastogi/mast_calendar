@@ -36,17 +36,6 @@ const Login = () => {
       console.error("Login failed:", error);
     }
   };
-  const trial = async () => {
-    try {
-      const response = await axi.post("/events", { withCredentials: true });
-      console.log("response:", response);
-
-      navi("/home");
-      console.log("Trial response:", response.data);
-    } catch (error) {
-      console.error("Trial request failed:", error);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br bg-slate-50 flex items-center justify-center p-4">
@@ -77,8 +66,6 @@ const Login = () => {
               Start managing your expenses effortlessly
             </p>
           </div>
-
-          {/* Google Sign In Button */}
           {
             <button
               disabled={loading}

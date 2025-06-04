@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { type Account, mockAccounts } from "../lib/mock-data.ts";
+import { type Account } from "../lib/interfaces.ts";
 import axi from "../utils/axios_cofig.ts";
 import LoaderMessage from "./Loader2.tsx";
 
@@ -30,6 +30,7 @@ export default function AccountSelector({
       setLoader(false);
     }
   };
+
   useEffect(() => {
     fetchAccounts();
   }, []);

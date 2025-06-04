@@ -1,21 +1,13 @@
 import { useState, useMemo } from "react";
+import type { RecurringTransactionState } from "../lib/interfaces";
 
-interface Bill {
-  id: number;
-  name: string;
-  amount: number;
-  dueDate: string;
-  frequency: string;
-  category: string;
-  isPaid: boolean;
-}
-
-interface CalendarProps {
-  bills: Bill[];
-  onPayBill: (id: number) => void;
-}
-
-export default function CustomCalendar({ bills, onPayBill }: CalendarProps) {
+export default function CustomCalendar({
+  bills,
+  onPayBill,
+}: {
+  bills: RecurringTransactionState[] | null;
+  onPayBill: (billId: number) => void;
+}) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
@@ -26,9 +18,8 @@ export default function CustomCalendar({ bills, onPayBill }: CalendarProps) {
   const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
 
   const billsByDate = useMemo(() => {
-    const billsMap: { [key: string]: Bill[] } = {};
-
-    bills.forEach((bill) => {
+    const billsMap: { [key: string]: RecurringTransactionState[] } = {};
+    bills?.forEach((bill) => {
       const billDate = new Date(bill.last_date || bill.first_date);
       const dateKey = `${billDate.getFullYear()}-${billDate.getMonth()}-${billDate.getDate()}`;
 
@@ -233,15 +224,6 @@ export default function CustomCalendar({ bills, onPayBill }: CalendarProps) {
                       <h4 className="font-medium text-gray-900 text-sm sm:text-base">
                         {bill.description}
                       </h4>
-                      {/* <span
-                className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  bill.status === "PAID"
-                    ? "bg-green-100 text-green-800"
-                    : "bg-red-100 text-red-800"
-                }`}
-                  >
-                {bill.status === "PAID" ? "Paid" : "Unpaid"}
-                  </span> */}
                     </div>
                     <div className="text-sm text-gray-600 space-y-1 mb-4">
                       <p>
@@ -259,14 +241,18 @@ export default function CustomCalendar({ bills, onPayBill }: CalendarProps) {
                         {bill.frequency}
                       </p>
                     </div>
-                    {bill.status !== "PAID" && (
+                    {bill.type === "inflow" ? (
+                      <div className="w-full bg-green-100 text-green-800 px-4 py-2 rounded-md text-sm font-medium text-center">
+                        Inflow
+                      </div>
+                    ) : bill.status !== "PAID" ? (
                       <button
                         onClick={() => onPayBill(bill.id)}
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
                       >
                         Pay Now
                       </button>
-                    )}
+                    ) : null}
                   </div>
                 );
               })}

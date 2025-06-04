@@ -6,7 +6,7 @@ import fetchRecurring from "../services/fetchRecurring.js";
 import storeRecurringTransactions from "../jobs/storeRecurring.js";
 import changeStatusToReady from "../jobs/changeStatusToReady.js";
 
-const RABBIT_MQ_URL = "amqp://localhost";
+const RABBIT_MQ_URL = "amqp://rabbitmq:5672";
 const QUEUE = "user-data-fetch";
 
 export default async function connectToQueue() {

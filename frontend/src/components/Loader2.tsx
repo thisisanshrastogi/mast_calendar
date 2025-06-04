@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { LoaderMessageProps } from "../lib/interfaces";
 
 const messages = [
   "Getting things ready...",
@@ -7,7 +8,7 @@ const messages = [
   "Setting things up...",
 ];
 
-export default function LoaderMessage({ customMessage }) {
+export default function LoaderMessage({ customMessage }: LoaderMessageProps) {
   const [index, setIndex] = useState(0);
   const messagesToShow = customMessage ? [customMessage] : messages;
   useEffect(() => {
